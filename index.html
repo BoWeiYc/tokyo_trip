@@ -8,387 +8,384 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="日本之旅">
     
-    <title>日本之旅</title>
+    <title>日本之旅 v2</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --primary: #FF4D4D; /* 日本紅 */
+            --primary: #FF4D4D;
             --bg-color: #F8F9FA;
             --card-bg: #FFFFFF;
             --text-main: #333333;
             --text-sub: #888888;
-            --timeline-line: #E0E0E0;
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
-        }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            padding-bottom: 90px; /* 預留底部導航空間 */
+            margin: 0; padding: 0; padding-bottom: 90px;
             color: var(--text-main);
-            /* 防止 iPhone 彈性滾動露出背景 */
-            overscroll-behavior-y: none; 
+            overscroll-behavior-y: none;
         }
 
-        /* 頂部標題區 */
+        /* --- Header & Date Selector --- */
         header {
             background: linear-gradient(135deg, #FF6B6B, #FF4D4D);
             color: white;
-            padding: 60px 20px 20px 20px; /* 上方預留瀏海空間 */
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
+            padding: 50px 20px 15px 20px;
+            position: sticky; top: 0; z-index: 100;
             box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        header p {
-            margin: 5px 0 0;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        /* 通用容器 */
-        .container {
-            padding: 20px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
         }
         
-        .section-title i {
-            margin-right: 8px;
-            color: var(--primary);
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        header h1 { margin: 0; font-size: 22px; font-weight: 700; }
+        
+        /* 日期選擇器 */
+        .date-scroll {
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;
+            scrollbar-width: none;
         }
+        .date-scroll::-webkit-scrollbar { display: none; }
+        
+        .date-chip {
+            background: rgba(255,255,255,0.3);
+            color: white; padding: 6px 14px; border-radius: 20px;
+            font-size: 13px; white-space: nowrap; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: 0.2s;
+        }
+        .date-chip.active { background: white; color: var(--primary); font-weight: bold; }
+        .add-day-btn { background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.5); }
 
-        /* --- 視覺化字卡區 (橫向滑動) --- */
-        .cards-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 15px;
-            padding-bottom: 10px;
-            /* 隱藏捲軸但保留功能 */
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
-        }
-        .cards-scroll::-webkit-scrollbar {
-            display: none;
-        }
+        /* --- Content Area --- */
+        .container { padding: 20px; }
+        .page-section { display: none; animation: fadeIn 0.3s ease; }
+        .page-section.active { display: block; }
 
-        .visual-card {
-            min-width: 260px;
-            height: 320px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            position: relative;
-            flex-shrink: 0;
-            transition: transform 0.2s;
-        }
-
-        .visual-card:active {
-            transform: scale(0.98);
-        }
-
-        .card-img {
-            width: 100%;
-            height: 65%;
-            object-fit: cover;
-            background-color: #eee;
-        }
-
-        .card-content {
-            padding: 15px;
-        }
-
-        .card-tag {
-            background: rgba(255, 77, 77, 0.1);
-            color: var(--primary);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .card-title {
-            margin: 8px 0 4px;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .card-desc {
-            font-size: 12px;
-            color: var(--text-sub);
-            line-height: 1.4;
-        }
-
-        /* --- 時間軸區 (Timeline) --- */
-        .timeline {
-            position: relative;
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-
-        /* 垂直線 */
+        /* Timeline Styles */
+        .timeline { position: relative; padding-left: 20px; margin-top: 10px; }
         .timeline::before {
-            content: '';
-            position: absolute;
-            left: 7px;
-            top: 5px;
-            bottom: 0;
-            width: 2px;
-            background: var(--timeline-line);
+            content: ''; position: absolute; left: 7px; top: 5px; bottom: 0;
+            width: 2px; background: #E0E0E0;
         }
-
-        .timeline-item {
-            position: relative;
-            padding-left: 25px;
-            margin-bottom: 30px;
-        }
-
-        /* 時間軸圓點 */
+        .timeline-item { position: relative; padding-left: 25px; margin-bottom: 25px; }
         .timeline-dot {
-            position: absolute;
-            left: 0;
-            top: 5px;
-            width: 16px;
-            height: 16px;
-            background: white;
-            border: 3px solid var(--primary);
-            border-radius: 50%;
-            z-index: 1;
+            position: absolute; left: 0; top: 5px; width: 16px; height: 16px;
+            background: white; border: 3px solid var(--primary); border-radius: 50%; z-index: 1;
+        }
+        .timeline-time { font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 4px; display: block; }
+        .timeline-content { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .timeline-title { margin: 0 0 5px; font-size: 16px; font-weight: 700; }
+        .timeline-desc { margin: 0; font-size: 13px; color: var(--text-sub); }
+        .location-link { 
+            display: inline-block; margin-top: 8px; font-size: 12px; 
+            color: #007AFF; text-decoration: none; 
         }
 
-        .timeline-time {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 4px;
-            display: block;
+        /* Map Section */
+        .map-container {
+            width: 100%; height: 70vh; background: #eee; border-radius: 12px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; color: #888;
         }
+        iframe { width: 100%; height: 100%; border: 0; }
 
-        .timeline-content {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .timeline-title {
-            margin: 0 0 5px;
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .timeline-desc {
-            margin: 0;
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-
-        /* --- 底部導航列 --- */
+        /* Navigation */
         .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0 25px 0; /* 底部加厚適配 iPhone Home Bar */
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            z-index: 200;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            display: flex; justify-content: space-around; padding: 12px 0 25px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200;
+        }
+        .nav-item { text-align: center; color: #BBBBBB; background: none; border: none; font-size: 10px; }
+        .nav-item i { display: block; font-size: 20px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
+
+        /* Floating Add Button */
+        .fab {
+            position: fixed; bottom: 100px; right: 20px;
+            width: 50px; height: 50px; background: var(--primary);
+            color: white; border-radius: 50%; border: none;
+            box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4);
+            font-size: 24px; display: flex; align-items: center; justify-content: center;
+            z-index: 150; cursor: pointer;
         }
 
-        .nav-item {
-            text-align: center;
-            color: #BBBBBB;
-            font-size: 10px;
-            background: none;
-            border: none;
-            cursor: pointer;
+        /* Modal (Form) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 300; display: none;
+            align-items: center; justify-content: center;
         }
-
-        .nav-item.active {
-            color: var(--primary);
+        .modal {
+            background: white; width: 85%; max-width: 400px; padding: 25px;
+            border-radius: 16px; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: #f0f0f0; color: #333; }
+        .btn-save { background: var(--primary); color: white; }
 
-        .nav-item i {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        /* 頁面切換控制 */
-        .page-section {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .page-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 id="header-title">Day 1: 東京探索</h1>
-        <p>2026.04.01 • 星期三</p>
+        <div class="header-top">
+            <h1 id="header-title">行程表</h1>
+            <div style="font-size: 14px; opacity: 0.8;" id="current-date-display">...</div>
+        </div>
+        <div class="date-scroll" id="date-list">
+            </div>
     </header>
 
-    <div id="page-highlights" class="page-section active container">
-        <div class="section-title">
-            <i class="fas fa-star"></i> 今日重點
-        </div>
-        
-        <div class="cards-scroll">
-            
-            <div class="visual-card">
-                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=600&auto=format&fit=crop" class="card-img" alt="澀谷">
-                <div class="card-content">
-                    <span class="card-tag">必去景點</span>
-                    <h3 class="card-title">澀谷 Shibuya Sky</h3>
-                    <p class="card-desc">東京最美高空夜景，記得要在 16:30 前抵達看夕陽。</p>
-                </div>
+    <div id="page-timeline" class="page-section active container">
+        <div class="timeline" id="timeline-container">
             </div>
-
-            <div class="visual-card">
-                <img src="https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=600&auto=format&fit=crop" class="card-img" alt="壽司">
-                <div class="card-content">
-                    <span class="card-tag">晚餐推薦</span>
-                    <h3 class="card-title">美登利壽司</h3>
-                    <p class="card-desc">銀座店排隊名店，已預約 19:00。必點穴子魚壽司。</p>
-                </div>
-            </div>
-
-            <div class="visual-card">
-                <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=600&auto=format&fit=crop" class="card-img" alt="塔">
-                <div class="card-content">
-                    <span class="card-tag">住宿</span>
-                    <h3 class="card-title">新宿格拉斯麗</h3>
-                    <p class="card-desc">哥吉拉飯店，位於新宿歌舞伎町中心。</p>
-                </div>
-            </div>
-
+        <div style="text-align:center; color:#ccc; margin-top:50px; display:none;" id="empty-state">
+            點擊右下角 + 新增第一個行程
         </div>
     </div>
 
-    <div id="page-timeline" class="page-section container">
-        <div class="section-title">
-            <i class="fas fa-clock"></i> 詳細行程
+    <div id="page-map" class="page-section container">
+        <h3><i class="fas fa-map-marked-alt"></i> 當日地圖</h3>
+        <p style="font-size:13px; color:#888;">顯示今日行程的第一個地點</p>
+        <div class="map-container">
+            <iframe id="google-map-frame" src="" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
         </div>
-
-        <div class="timeline">
-            
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <span class="timeline-time">10:00</span>
-                <div class="timeline-content">
-                    <h4 class="timeline-title">抵達東京成田機場</h4>
-                    <p class="timeline-desc">搭乘 Skyliner 前往上野站，預計車程 45 分鐘。</p>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <span class="timeline-time">12:30</span>
-                <div class="timeline-content">
-                    <h4 class="timeline-title">午餐：阿美橫町</h4>
-                    <p class="timeline-desc">隨意吃，推薦鐵火丼或章魚燒。</p>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <span class="timeline-time">15:00</span>
-                <div class="timeline-content">
-                    <h4 class="timeline-title">淺草寺參拜</h4>
-                    <p class="timeline-desc">雷門拍照，抽籤。記得去吃花月堂菠蘿麵包。</p>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <span class="timeline-time">19:00</span>
-                <div class="timeline-content">
-                    <h4 class="timeline-title">晴空塔夜景</h4>
-                    <p class="timeline-desc">已買好預售票，從 4 樓入口進場。</p>
-                </div>
-            </div>
-
-        </div>
+        <p style="text-align:center; margin-top:10px;">
+            <a href="#" id="open-google-map-app" style="color:#007AFF; text-decoration:none;">
+                <i class="fas fa-external-link-alt"></i> 在 Google Maps App 中開啟
+            </a>
+        </p>
     </div>
+
+    <button class="fab" onclick="openModal()">+</button>
 
     <nav class="nav-bar">
-        <button class="nav-item active" onclick="switchPage('highlights', this)">
-            <i class="fas fa-images"></i>
-            重點字卡
+        <button class="nav-item active" onclick="switchPage('timeline', this)">
+            <i class="fas fa-list-ul"></i> 行程
         </button>
-        <button class="nav-item" onclick="switchPage('timeline', this)">
-            <i class="fas fa-list-ul"></i>
-            詳細行程
-        </button>
-        <button class="nav-item">
-            <i class="fas fa-map-marked-alt"></i>
-            地圖
+        <button class="nav-item" onclick="switchPage('map', this)">
+            <i class="fas fa-map"></i> 地圖
         </button>
     </nav>
 
-    <script>
-        function switchPage(pageId, btnElement) {
-            // 隱藏所有頁面
-            document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.remove('active');
-            });
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <h3 style="margin-top:0;">新增行程</h3>
             
-            // 顯示目標頁面
-            document.getElementById('page-' + pageId).classList.add('active');
+            <div class="form-group">
+                <label>時間</label>
+                <input type="time" id="input-time" class="form-control" value="10:00">
+            </div>
+            <div class="form-group">
+                <label>標題</label>
+                <input type="text" id="input-title" class="form-control" placeholder="例如：吃拉麵">
+            </div>
+            <div class="form-group">
+                <label>描述 / 備註</label>
+                <input type="text" id="input-desc" class="form-control" placeholder="備註...">
+            </div>
+            <div class="form-group">
+                <label>地點 (用於地圖)</label>
+                <input type="text" id="input-loc" class="form-control" placeholder="例如：東京鐵塔">
+            </div>
 
-            // 更新導航按鈕狀態
-            document.querySelectorAll('.nav-item').forEach(nav => {
-                nav.classList.remove('active');
+            <div class="modal-btns">
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-save" onclick="saveItem()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 資料管理核心 ---
+        // 預設資料 (如果使用者是第一次開)
+        const defaultData = [
+            {
+                date: "2026-04-01",
+                label: "Day 1",
+                items: [
+                    { time: "10:00", title: "抵達機場", desc: "成田機場 T2", location: "成田機場" },
+                    { time: "19:00", title: "Shibuya Sky", desc: "看夜景，已預約", location: "Shibuya Sky" }
+                ]
+            }
+        ];
+
+        let tripData = [];
+        let currentDayIndex = 0;
+
+        // 初始化
+        function init() {
+            // 從手機儲存空間讀取資料
+            const saved = localStorage.getItem('myTripData');
+            if (saved) {
+                tripData = JSON.parse(saved);
+            } else {
+                tripData = defaultData;
+            }
+            renderDateSelector();
+            renderTimeline();
+        }
+
+        // 渲染日期選擇器
+        function renderDateSelector() {
+            const container = document.getElementById('date-list');
+            container.innerHTML = '';
+
+            tripData.forEach((day, index) => {
+                const chip = document.createElement('div');
+                chip.className = `date-chip ${index === currentDayIndex ? 'active' : ''}`;
+                chip.innerText = day.label;
+                chip.onclick = () => {
+                    currentDayIndex = index;
+                    renderDateSelector(); // 更新樣式
+                    renderTimeline(); // 更新行程內容
+                    updateMapSource(); // 更新地圖
+                };
+                container.appendChild(chip);
             });
-            btnElement.classList.add('active');
 
-            // 根據頁面更換標題 (可選)
-            const title = document.getElementById('header-title');
-            if(pageId === 'highlights') {
-                title.innerText = 'Day 1: 東京探索';
-            } else if(pageId === 'timeline') {
-                title.innerText = 'Day 1: 詳細行程表';
+            // 「新增天數」按鈕
+            const addBtn = document.createElement('div');
+            addBtn.className = 'date-chip add-day-btn';
+            addBtn.innerHTML = '+';
+            addBtn.onclick = addNewDay;
+            container.appendChild(addBtn);
+
+            // 更新標題日期
+            if(tripData[currentDayIndex]) {
+                document.getElementById('current-date-display').innerText = tripData[currentDayIndex].date;
             }
         }
+
+        // 渲染時間軸
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            const emptyState = document.getElementById('empty-state');
+            container.innerHTML = '';
+            
+            const dayItems = tripData[currentDayIndex].items;
+
+            // 排序：按時間早晚
+            dayItems.sort((a, b) => a.time.localeCompare(b.time));
+
+            if (dayItems.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                dayItems.forEach(item => {
+                    const html = `
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <span class="timeline-time">${item.time}</span>
+                            <div class="timeline-content">
+                                <h4 class="timeline-title">${item.title}</h4>
+                                <p class="timeline-desc">${item.desc}</p>
+                                ${item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="location-link"><i class="fas fa-map-marker-alt"></i> ${item.location}</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+        }
+
+        // 新增天數邏輯
+        function addNewDay() {
+            const nextDate = new Date(tripData[tripData.length - 1].date);
+            nextDate.setDate(nextDate.getDate() + 1); // 加一天
+            
+            const dateStr = nextDate.toISOString().split('T')[0]; // 轉成 YYYY-MM-DD
+            const newDayIndex = tripData.length + 1;
+
+            tripData.push({
+                date: dateStr,
+                label: `Day ${newDayIndex}`,
+                items: []
+            });
+            
+            saveToLocal();
+            currentDayIndex = tripData.length - 1; // 切換到新的一天
+            renderDateSelector();
+            renderTimeline();
+        }
+
+        // --- 新增行程視窗邏輯 ---
+        function openModal() {
+            document.getElementById('add-modal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('add-modal').style.display = 'none';
+        }
+
+        function saveItem() {
+            const time = document.getElementById('input-time').value;
+            const title = document.getElementById('input-title').value;
+            const desc = document.getElementById('input-desc').value;
+            const loc = document.getElementById('input-loc').value;
+
+            if (!title) { alert('請輸入標題'); return; }
+
+            // 加到當前天數的陣列
+            tripData[currentDayIndex].items.push({
+                time: time, title: title, desc: desc, location: loc
+            });
+
+            saveToLocal();
+            closeModal();
+            renderTimeline();
+            
+            // 清空輸入框
+            document.getElementById('input-title').value = '';
+            document.getElementById('input-desc').value = '';
+            document.getElementById('input-loc').value = '';
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('myTripData', JSON.stringify(tripData));
+        }
+
+        // --- 頁面與地圖邏輯 ---
+        function switchPage(pageId, btn) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (pageId === 'map') {
+                updateMapSource();
+            }
+        }
+
+        function updateMapSource() {
+            // 抓取當天行程的第一個地點
+            const dayItems = tripData[currentDayIndex].items;
+            let query = "Japan"; // 預設
+            
+            if (dayItems.length > 0 && dayItems[0].location) {
+                query = dayItems[0].location;
+            }
+
+            // 更新 iframe (使用 Google Maps Embed API 的 search 模式，注意：這裡沒用 API Key 可能會有浮水印或限制，但通常個人用 search 模式可運作)
+            // 為了更穩定，這裡使用 output=embed 的舊版通用接口
+            const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+            document.getElementById('google-map-frame').src = mapUrl;
+            
+            // 更新外連按鈕
+            document.getElementById('open-google-map-app').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+        }
+
+        // 啟動 App
+        init();
+
     </script>
 </body>
 </html>
