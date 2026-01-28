@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="日本之旅">
     
-    <title>日本之旅 v3.0</title>
+    <title>日本之旅 v4.0</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -43,7 +43,6 @@
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         header h1 { margin: 0; font-size: 22px; font-weight: 700; }
         
-        /* 分享按鈕 */
         .share-btn {
             background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
             color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px;
@@ -58,7 +57,6 @@
             cursor: pointer;
         }
 
-        /* Date Chips */
         .date-scroll {
             display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;
             scrollbar-width: none;
@@ -75,12 +73,11 @@
         .date-chip.active { background: white; color: var(--primary); font-weight: bold; transform: scale(1.05); }
         .add-day-btn { background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.5); }
 
-        /* --- Content --- */
+        /* --- Timeline --- */
         .container { padding: 20px; }
         .page-section { display: none; animation: fadeIn 0.3s ease; }
         .page-section.active { display: block; }
 
-        /* Timeline */
         .timeline { position: relative; padding-left: 20px; margin-top: 10px; }
         .timeline::before {
             content: ''; position: absolute; left: 7px; top: 5px; bottom: 0;
@@ -91,11 +88,16 @@
             position: absolute; left: 0; top: 5px; width: 16px; height: 16px;
             background: white; border: 3px solid var(--primary); border-radius: 50%; z-index: 1;
         }
-        .delete-btn { position: absolute; right: 0; top: 0; color: #ddd; font-size: 14px; padding: 5px; }
         
+        /* 操作按鈕區 */
+        .item-actions { position: absolute; right: 0; top: 0; display: flex; gap: 10px; }
+        .action-btn { color: #ddd; font-size: 14px; padding: 5px; cursor: pointer; transition: 0.2s; }
+        .action-btn.edit:hover { color: #007AFF; }
+        .action-btn.delete:hover { color: #FF4D4D; }
+
         .timeline-time { font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 4px; display: block; }
         .timeline-content { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .timeline-title { margin: 0 0 5px; font-size: 16px; font-weight: 700; }
+        .timeline-title { margin: 0 0 5px; font-size: 16px; font-weight: 700; padding-right: 40px; } /* 預留按鈕空間 */
         .timeline-desc { margin: 0; font-size: 13px; color: var(--text-sub); }
         .location-link { display: inline-block; margin-top: 8px; font-size: 12px; color: #007AFF; text-decoration: none; }
 
@@ -135,7 +137,7 @@
             background: white; width: 85%; max-width: 400px; padding: 25px;
             border-radius: 16px; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
         .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
@@ -143,7 +145,7 @@
         .btn-cancel { background: #f0f0f0; color: #333; }
         .btn-save { background: var(--primary); color: white; }
 
-        /* Toast Notification */
+        /* Toast */
         #toast {
             visibility: hidden; min-width: 200px; background-color: #333; color: #fff;
             text-align: center; border-radius: 25px; padding: 12px; position: fixed;
@@ -162,7 +164,6 @@
     <header>
         <div class="header-top">
             <h1 id="header-title" onclick="editDayLabel()" style="cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.5);">Day 1</h1>
-            
             <div style="display: flex; gap: 8px;">
                 <button class="share-btn" onclick="shareItinerary()">
                     <i class="fas fa-share-alt"></i> 分享
@@ -194,18 +195,19 @@
 
     <div id="page-map" class="page-section container">
         <h3><i class="fas fa-map-marked-alt"></i> 當日地圖</h3>
+        <p style="font-size:12px; color:#888;">預覽顯示行程名稱，點擊下方按鈕可開啟精準連結</p>
         <div class="map-container">
             <iframe id="google-map-frame" src="" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
         </div>
         <p style="text-align:center; margin-top:10px;">
             <a href="#" id="open-google-map-app" style="color:#007AFF; text-decoration:none;">
-                <i class="fas fa-external-link-alt"></i> 在 Google Maps App 中開啟
+                <i class="fas fa-external-link-alt"></i> 在 Google Maps App 中開啟導航
             </a>
         </p>
     </div>
 
-    <button class="fab" onclick="openModal()">+</button>
-    <div id="toast">已複製分享連結！</div>
+    <button class="fab" onclick="openModal('add')">+</button>
+    <div id="toast">訊息</div>
 
     <nav class="nav-bar">
         <button class="nav-item active" onclick="switchPage('timeline', this)">
@@ -218,11 +220,24 @@
 
     <div class="modal-overlay" id="add-modal">
         <div class="modal">
-            <h3 style="margin-top:0;">新增行程</h3>
+            <h3 id="modal-title" style="margin-top:0;">新增行程</h3>
+            
             <div class="form-group"><label>時間</label><input type="time" id="input-time" class="form-control" value="10:00"></div>
             <div class="form-group"><label>標題</label><input type="text" id="input-title" class="form-control" placeholder="例如：吃拉麵"></div>
-            <div class="form-group"><label>地點</label><input type="text" id="input-loc" class="form-control" placeholder="例如：東京鐵塔"></div>
+            
+            <div class="form-group">
+                <label>地點名稱 (用於顯示)</label>
+                <input type="text" id="input-loc" class="form-control" placeholder="例如：一蘭拉麵 本店">
+            </div>
+            
+            <div class="form-group">
+                <label>Google Maps 連結 (選填)</label>
+                <input type="text" id="input-link" class="form-control" placeholder="貼上 goo.gl 或 maps.app.goo.gl 連結">
+                <small style="color:#999; font-size:10px;">貼上連結可讓地圖按鈕更精準定位</small>
+            </div>
+
             <div class="form-group"><label>備註</label><input type="text" id="input-desc" class="form-control" placeholder="備註..."></div>
+            
             <div class="modal-btns">
                 <button class="btn btn-cancel" onclick="closeModal()">取消</button>
                 <button class="btn btn-save" onclick="saveItem()">儲存</button>
@@ -231,40 +246,30 @@
     </div>
 
     <script>
-        // Key 保持一致，確保資料不丟失
         const STORAGE_KEY = 'myTripData_v2'; 
         const defaultData = [{ date: "2026-04-01", label: "Day 1", items: [] }];
         let tripData = [];
         let currentDayIndex = 0;
+        let editingItemIndex = -1; // 用來追蹤現在是在編輯哪一筆，-1 代表新增模式
 
         function init() {
-            // 1. 優先檢查網址是否有分享資料 (Import)
+            // Import Share Logic
             const hash = window.location.hash;
             if (hash && hash.startsWith('#import=')) {
                 try {
-                    const compressed = hash.substring(8); // 去掉 #import=
+                    const compressed = hash.substring(8);
                     const decompressed = LZString.decompressFromEncodedURIComponent(compressed);
                     if (decompressed) {
                         const sharedData = JSON.parse(decompressed);
-                        if (confirm('偵測到來自朋友分享的行程！\n是否要覆蓋掉你手機裡目前的舊行程？')) {
+                        if (confirm('偵測到分享行程！是否覆蓋現有資料？')) {
                             tripData = sharedData;
                             saveToLocal();
-                            // 清除網址 hash 避免重新整理又跳出來
                             history.replaceState(null, null, ' ');
                             showToast("行程匯入成功！");
-                        } else {
-                            // 使用者拒絕，讀取本地資料
-                            loadFromLocal();
-                        }
+                        } else { loadFromLocal(); }
                     }
-                } catch (e) {
-                    console.error("Import failed", e);
-                    alert("連結無效或損毀");
-                    loadFromLocal();
-                }
-            } else {
-                loadFromLocal();
-            }
+                } catch (e) { alert("連結無效"); loadFromLocal(); }
+            } else { loadFromLocal(); }
 
             renderDateSelector();
             renderTimeline();
@@ -274,44 +279,9 @@
             const saved = localStorage.getItem(STORAGE_KEY);
             tripData = saved ? JSON.parse(saved) : defaultData;
         }
+        function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tripData)); }
 
-        function saveToLocal() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(tripData));
-        }
-
-        // --- 分享核心功能 ---
-        function shareItinerary() {
-            try {
-                // 1. 將資料轉字串
-                const jsonString = JSON.stringify(tripData);
-                // 2. 壓縮字串 (為了讓網址不要太長)
-                const compressed = LZString.compressToEncodedURIComponent(jsonString);
-                // 3. 組合網址
-                // 抓取當前網址 (去除 # 後面的東西)
-                const baseUrl = window.location.href.split('#')[0];
-                const shareUrl = `${baseUrl}#import=${compressed}`;
-
-                // 4. 複製到剪貼簿
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    showToast("已複製連結！傳給朋友即可分享");
-                }).catch(err => {
-                    // 如果瀏覽器不支援自動複製，顯示出來讓使用者手動複製
-                    prompt("請手動複製以下網址傳給朋友：", shareUrl);
-                });
-
-            } catch (e) {
-                alert("分享失敗，資料可能太多了");
-            }
-        }
-
-        function showToast(msg) {
-            const x = document.getElementById("toast");
-            x.innerText = msg;
-            x.className = "show";
-            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        }
-
-        // --- 其他介面邏輯 (與上版相同) ---
+        // --- Core Render Logic ---
         function renderDateSelector() {
             const container = document.getElementById('date-list');
             container.innerHTML = '';
@@ -319,10 +289,7 @@
                 const chip = document.createElement('div');
                 chip.className = `date-chip ${index === currentDayIndex ? 'active' : ''}`;
                 chip.innerText = day.label;
-                chip.onclick = () => {
-                    currentDayIndex = index;
-                    renderDateSelector(); renderTimeline(); updateMapSource();
-                };
+                chip.onclick = () => { currentDayIndex = index; renderDateSelector(); renderTimeline(); updateMapSource(); };
                 container.appendChild(chip);
             });
             const addBtn = document.createElement('div');
@@ -333,18 +300,13 @@
             updateHeaderInfo();
         }
 
-        function updateHeaderInfo() {
-            if(tripData[currentDayIndex]) {
-                document.getElementById('current-date-display').innerText = tripData[currentDayIndex].date;
-                document.getElementById('header-title').innerText = tripData[currentDayIndex].label;
-            }
-        }
-
         function renderTimeline() {
             const container = document.getElementById('timeline-container');
             const emptyState = document.getElementById('empty-state');
             container.innerHTML = '';
             const dayItems = tripData[currentDayIndex].items || [];
+            
+            // 排序
             dayItems.sort((a, b) => a.time.localeCompare(b.time));
 
             if (dayItems.length === 0) {
@@ -352,15 +314,32 @@
             } else {
                 emptyState.style.display = 'none';
                 dayItems.forEach((item, idx) => {
+                    // 判斷連結：如果有專屬連結就用專屬連結，否則用名稱搜尋
+                    let mapUrl = '#';
+                    let hasLink = false;
+                    
+                    if (item.link && item.link.trim() !== "") {
+                        mapUrl = item.link;
+                        hasLink = true;
+                    } else if (item.location) {
+                        mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`;
+                        hasLink = true;
+                    }
+
                     const html = `
                         <div class="timeline-item">
                             <div class="timeline-dot"></div>
-                            <div class="delete-btn" onclick="deleteItem(${idx})"><i class="fas fa-trash"></i></div>
+                            
+                            <div class="item-actions">
+                                <div class="action-btn edit" onclick="openModal('edit', ${idx})"><i class="fas fa-pencil-alt"></i></div>
+                                <div class="action-btn delete" onclick="deleteItem(${idx})"><i class="fas fa-trash"></i></div>
+                            </div>
+
                             <span class="timeline-time">${item.time}</span>
                             <div class="timeline-content">
                                 <h4 class="timeline-title">${item.title}</h4>
                                 <p class="timeline-desc">${item.desc}</p>
-                                ${item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="location-link"><i class="fas fa-map-marker-alt"></i> ${item.location}</a>` : ''}
+                                ${hasLink ? `<a href="${mapUrl}" target="_blank" class="location-link"><i class="fas fa-map-marker-alt"></i> ${item.location || '查看地圖'}</a>` : ''}
                             </div>
                         </div>
                     `;
@@ -369,10 +348,77 @@
             }
         }
 
-        // Actions
+        // --- Edit & Modal Logic ---
+        function openModal(mode, idx = -1) {
+            const modal = document.getElementById('add-modal');
+            const titleEl = document.getElementById('modal-title');
+            
+            // 清空/重置輸入框
+            document.getElementById('input-time').value = "10:00";
+            document.getElementById('input-title').value = "";
+            document.getElementById('input-loc').value = "";
+            document.getElementById('input-link').value = "";
+            document.getElementById('input-desc').value = "";
+
+            if (mode === 'edit') {
+                titleEl.innerText = "編輯行程";
+                editingItemIndex = idx;
+                const item = tripData[currentDayIndex].items[idx];
+                
+                // 填入舊資料
+                document.getElementById('input-time').value = item.time;
+                document.getElementById('input-title').value = item.title;
+                document.getElementById('input-loc').value = item.location || "";
+                document.getElementById('input-link').value = item.link || ""; // 填入連結
+                document.getElementById('input-desc').value = item.desc || "";
+            } else {
+                titleEl.innerText = "新增行程";
+                editingItemIndex = -1; // 新增模式
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('add-modal').style.display = 'none'; }
+
+        function saveItem() {
+            const time = document.getElementById('input-time').value;
+            const title = document.getElementById('input-title').value;
+            const loc = document.getElementById('input-loc').value;
+            const link = document.getElementById('input-link').value;
+            const desc = document.getElementById('input-desc').value;
+
+            if (!title) { alert('請輸入標題'); return; }
+
+            const newItem = { time, title, desc, location: loc, link: link };
+
+            if (editingItemIndex > -1) {
+                // 編輯模式：更新現有資料
+                tripData[currentDayIndex].items[editingItemIndex] = newItem;
+                showToast("行程已更新");
+            } else {
+                // 新增模式：加入新資料
+                tripData[currentDayIndex].items.push(newItem);
+                showToast("行程已新增");
+            }
+
+            saveToLocal();
+            closeModal();
+            renderTimeline();
+        }
+
+        function deleteItem(idx) {
+            if(confirm('確定刪除？')) {
+                tripData[currentDayIndex].items.splice(idx, 1);
+                saveToLocal(); renderTimeline();
+                showToast("已刪除");
+            }
+        }
+
+        // --- Shared / Utils ---
         function editDate() {
             const current = tripData[currentDayIndex];
-            const newDate = prompt("請輸入新日期 (格式 YYYY-MM-DD)", current.date);
+            const newDate = prompt("請輸入新日期", current.date);
             if (newDate) { current.date = newDate; saveToLocal(); updateHeaderInfo(); }
         }
         function editDayLabel() {
@@ -389,29 +435,32 @@
             tripData.push({ date: nextDateStr, label: `Day ${tripData.length + 1}`, items: [] });
             saveToLocal(); currentDayIndex = tripData.length - 1; renderDateSelector(); renderTimeline();
         }
-        function openModal() { document.getElementById('add-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('add-modal').style.display = 'none'; }
-        function saveItem() {
-            const time = document.getElementById('input-time').value;
-            const title = document.getElementById('input-title').value;
-            const desc = document.getElementById('input-desc').value;
-            const loc = document.getElementById('input-loc').value;
-            if (!title) { alert('請輸入標題'); return; }
-            tripData[currentDayIndex].items.push({ time, title, desc, location: loc });
-            saveToLocal(); closeModal(); renderTimeline();
-            document.getElementById('input-title').value = '';
-            document.getElementById('input-desc').value = '';
-            document.getElementById('input-loc').value = '';
-        }
-        function deleteItem(idx) {
-            if(confirm('確定刪除？')) {
-                tripData[currentDayIndex].items.splice(idx, 1);
-                saveToLocal(); renderTimeline();
+        function updateHeaderInfo() {
+            if(tripData[currentDayIndex]) {
+                document.getElementById('current-date-display').innerText = tripData[currentDayIndex].date;
+                document.getElementById('header-title').innerText = tripData[currentDayIndex].label;
             }
+        }
+        function shareItinerary() {
+            try {
+                const jsonString = JSON.stringify(tripData);
+                const compressed = LZString.compressToEncodedURIComponent(jsonString);
+                const baseUrl = window.location.href.split('#')[0];
+                const shareUrl = `${baseUrl}#import=${compressed}`;
+                navigator.clipboard.writeText(shareUrl).then(() => showToast("已複製連結！"))
+                .catch(() => prompt("請複製連結：", shareUrl));
+            } catch (e) { alert("分享失敗"); }
+        }
+        function showToast(msg) {
+            const x = document.getElementById("toast");
+            x.innerText = msg; x.className = "show";
+            setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000);
         }
         function resetAllData() {
             if(confirm("確定清除所有資料並重置？")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
         }
+
+        // --- Map Logic ---
         function switchPage(pageId, btn) {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
@@ -419,12 +468,29 @@
             btn.classList.add('active');
             if (pageId === 'map') updateMapSource();
         }
+
         function updateMapSource() {
             const dayItems = tripData[currentDayIndex].items;
             let query = "Japan";
-            if (dayItems.length > 0 && dayItems[0].location) query = dayItems[0].location;
+            let directLink = null;
+
+            // 優先找當天第一個有 "地點名稱" 的行程
+            if (dayItems.length > 0) {
+                // 這裡的邏輯：地圖 iframe 需要搜尋關鍵字，所以我們優先使用 location 名稱
+                // 如果該行程只有 link 沒有 location，iframe 可能會搜尋不到，建議還是輸入地點名稱
+                const firstLocItem = dayItems.find(i => i.location && i.location.trim() !== "");
+                if (firstLocItem) {
+                    query = firstLocItem.location;
+                    if (firstLocItem.link) directLink = firstLocItem.link;
+                }
+            }
+            
+            // Iframe 只能用名稱搜尋
             document.getElementById('google-map-frame').src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
-            document.getElementById('open-google-map-app').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+            
+            // 下方按鈕：如果有設定連結，就用連結；否則用搜尋
+            const btnLink = directLink ? directLink : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+            document.getElementById('open-google-map-app').href = btnLink;
         }
 
         init();
