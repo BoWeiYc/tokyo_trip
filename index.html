@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="日本之旅">
+    
+    <title>日本之旅</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #FF4D4D; /* 日本紅 */
+            --bg-color: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --text-main: #333333;
+            --text-sub: #888888;
+            --timeline-line: #E0E0E0;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 90px; /* 預留底部導航空間 */
+            color: var(--text-main);
+            /* 防止 iPhone 彈性滾動露出背景 */
+            overscroll-behavior-y: none; 
+        }
+
+        /* 頂部標題區 */
+        header {
+            background: linear-gradient(135deg, #FF6B6B, #FF4D4D);
+            color: white;
+            padding: 60px 20px 20px 20px; /* 上方預留瀏海空間 */
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 通用容器 */
+        .container {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 8px;
+            color: var(--primary);
+        }
+
+        /* --- 視覺化字卡區 (橫向滑動) --- */
+        .cards-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding-bottom: 10px;
+            /* 隱藏捲軸但保留功能 */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .cards-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .visual-card {
+            min-width: 260px;
+            height: 320px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        .visual-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 65%;
+            object-fit: cover;
+            background-color: #eee;
+        }
+
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-tag {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .card-title {
+            margin: 8px 0 4px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        /* --- 時間軸區 (Timeline) --- */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        /* 垂直線 */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 5px;
+            bottom: 0;
+            width: 2px;
+            background: var(--timeline-line);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* 時間軸圓點 */
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .timeline-title {
+            margin: 0 0 5px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .timeline-desc {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        /* --- 底部導航列 --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 25px 0; /* 底部加厚適配 iPhone Home Bar */
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 200;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #BBBBBB;
+            font-size: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* 頁面切換控制 */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="header-title">Day 1: 東京探索</h1>
+        <p>2026.04.01 • 星期三</p>
+    </header>
+
+    <div id="page-highlights" class="page-section active container">
+        <div class="section-title">
+            <i class="fas fa-star"></i> 今日重點
+        </div>
+        
+        <div class="cards-scroll">
+            
+            <div class="visual-card">
+                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=600&auto=format&fit=crop" class="card-img" alt="澀谷">
+                <div class="card-content">
+                    <span class="card-tag">必去景點</span>
+                    <h3 class="card-title">澀谷 Shibuya Sky</h3>
+                    <p class="card-desc">東京最美高空夜景，記得要在 16:30 前抵達看夕陽。</p>
+                </div>
+            </div>
+
+            <div class="visual-card">
+                <img src="https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=600&auto=format&fit=crop" class="card-img" alt="壽司">
+                <div class="card-content">
+                    <span class="card-tag">晚餐推薦</span>
+                    <h3 class="card-title">美登利壽司</h3>
+                    <p class="card-desc">銀座店排隊名店，已預約 19:00。必點穴子魚壽司。</p>
+                </div>
+            </div>
+
+            <div class="visual-card">
+                <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=600&auto=format&fit=crop" class="card-img" alt="塔">
+                <div class="card-content">
+                    <span class="card-tag">住宿</span>
+                    <h3 class="card-title">新宿格拉斯麗</h3>
+                    <p class="card-desc">哥吉拉飯店，位於新宿歌舞伎町中心。</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="page-timeline" class="page-section container">
+        <div class="section-title">
+            <i class="fas fa-clock"></i> 詳細行程
+        </div>
+
+        <div class="timeline">
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">10:00</span>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">抵達東京成田機場</h4>
+                    <p class="timeline-desc">搭乘 Skyliner 前往上野站，預計車程 45 分鐘。</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">12:30</span>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">午餐：阿美橫町</h4>
+                    <p class="timeline-desc">隨意吃，推薦鐵火丼或章魚燒。</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">15:00</span>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">淺草寺參拜</h4>
+                    <p class="timeline-desc">雷門拍照，抽籤。記得去吃花月堂菠蘿麵包。</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">19:00</span>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">晴空塔夜景</h4>
+                    <p class="timeline-desc">已買好預售票，從 4 樓入口進場。</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="switchPage('highlights', this)">
+            <i class="fas fa-images"></i>
+            重點字卡
+        </button>
+        <button class="nav-item" onclick="switchPage('timeline', this)">
+            <i class="fas fa-list-ul"></i>
+            詳細行程
+        </button>
+        <button class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            地圖
+        </button>
+    </nav>
+
+    <script>
+        function switchPage(pageId, btnElement) {
+            // 隱藏所有頁面
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 顯示目標頁面
+            document.getElementById('page-' + pageId).classList.add('active');
+
+            // 更新導航按鈕狀態
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            btnElement.classList.add('active');
+
+            // 根據頁面更換標題 (可選)
+            const title = document.getElementById('header-title');
+            if(pageId === 'highlights') {
+                title.innerText = 'Day 1: 東京探索';
+            } else if(pageId === 'timeline') {
+                title.innerText = 'Day 1: 詳細行程表';
+            }
+        }
+    </script>
+</body>
+</html>
