@@ -8,14 +8,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="日本之旅">
     
-    <title>日本之旅 v4.0</title>
+    <title>日本之旅 v6.0</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
 
     <style>
         :root {
-            --primary: #FF4D4D;
+            --primary: #FF4D4D; 
             --bg-color: #F8F9FA;
             --card-bg: #FFFFFF;
             --text-main: #333333;
@@ -33,88 +33,108 @@
 
         /* --- Header --- */
         header {
-            background: linear-gradient(135deg, #FF6B6B, #FF4D4D);
+            background: var(--primary);
             color: white;
             padding: 50px 20px 15px 20px;
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: background 0.3s;
         }
         
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         header h1 { margin: 0; font-size: 22px; font-weight: 700; }
         
-        .share-btn {
+        .header-btn {
             background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
             color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px;
             cursor: pointer; display: flex; align-items: center; gap: 5px;
         }
 
         .editable-date {
-            font-size: 14px; opacity: 0.9;
-            background: rgba(255,255,255,0.2);
-            padding: 4px 10px; border-radius: 12px;
-            display: inline-flex; align-items: center; gap: 5px;
-            cursor: pointer;
+            font-size: 14px; opacity: 0.9; background: rgba(255,255,255,0.2);
+            padding: 4px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
         }
 
-        .date-scroll {
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;
-            scrollbar-width: none;
-        }
+        .date-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
         .date-scroll::-webkit-scrollbar { display: none; }
         
         .date-chip {
-            background: rgba(255,255,255,0.3);
-            color: white; padding: 6px 14px; border-radius: 20px;
-            font-size: 13px; white-space: nowrap; cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: 0.2s;
+            background: rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 20px;
+            font-size: 13px; white-space: nowrap; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: 0.2s;
         }
         .date-chip.active { background: white; color: var(--primary); font-weight: bold; transform: scale(1.05); }
         .add-day-btn { background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.5); }
 
-        /* --- Timeline --- */
+        /* --- Content Layout --- */
         .container { padding: 20px; }
         .page-section { display: none; animation: fadeIn 0.3s ease; }
         .page-section.active { display: block; }
 
+        /* --- Timeline --- */
         .timeline { position: relative; padding-left: 20px; margin-top: 10px; }
-        .timeline::before {
-            content: ''; position: absolute; left: 7px; top: 5px; bottom: 0;
-            width: 2px; background: #E0E0E0;
-        }
-        .timeline-item { position: relative; padding-left: 25px; margin-bottom: 25px; }
+        .timeline::before { content: ''; position: absolute; left: 7px; top: 5px; bottom: 0; width: 2px; background: #E0E0E0; }
+        .timeline-item { position: relative; padding-left: 25px; margin-bottom: 20px; }
         .timeline-dot {
             position: absolute; left: 0; top: 5px; width: 16px; height: 16px;
             background: white; border: 3px solid var(--primary); border-radius: 50%; z-index: 1;
         }
-        
-        /* 操作按鈕區 */
-        .item-actions { position: absolute; right: 0; top: 0; display: flex; gap: 10px; }
-        .action-btn { color: #ddd; font-size: 14px; padding: 5px; cursor: pointer; transition: 0.2s; }
-        .action-btn.edit:hover { color: #007AFF; }
-        .action-btn.delete:hover { color: #FF4D4D; }
-
-        .timeline-time { font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 4px; display: block; }
-        .timeline-content { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .timeline-title { margin: 0 0 5px; font-size: 16px; font-weight: 700; padding-right: 40px; } /* 預留按鈕空間 */
-        .timeline-desc { margin: 0; font-size: 13px; color: var(--text-sub); }
-        .location-link { display: inline-block; margin-top: 8px; font-size: 12px; color: #007AFF; text-decoration: none; }
-
-        /* Map */
-        .map-container {
-            width: 100%; height: 70vh; background: #eee; border-radius: 12px; overflow: hidden;
-            display: flex; align-items: center; justify-content: center; color: #888;
+        .timeline-content { 
+            background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            transition: all 0.3s; cursor: pointer; position: relative;
         }
-        iframe { width: 100%; height: 100%; border: 0; }
+        .timeline-item.expanded .timeline-content { box-shadow: 0 8px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .timeline-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .timeline-time { font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 4px; display: block; }
+        .timeline-title { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .expand-icon { color: #ccc; font-size: 14px; transition: transform 0.3s; }
+        .timeline-item.expanded .expand-icon { transform: rotate(180deg); }
+        .timeline-details {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; margin-top: 0; border-top: 1px solid transparent;
+        }
+        .timeline-item.expanded .timeline-details {
+            max-height: 1000px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; transition: max-height 0.5s ease-in;
+        }
+        .timeline-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; white-space: pre-wrap; }
+        .location-link { display: inline-block; margin-top: 8px; font-size: 12px; color: #007AFF; text-decoration: none; }
+        .timeline-images { margin-top: 10px; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px;}
+        .timeline-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background: #f0f0f0; flex-shrink: 0;}
+        .item-actions { margin-top: 15px; display: flex; justify-content: flex-end; gap: 15px; }
+        .action-btn { font-size: 12px; color: #999; display: flex; align-items: center; gap: 4px; padding: 5px 10px; background: #f9f9f9; border-radius: 15px;}
+        
+        /* --- Budget Page (記帳) --- */
+        .budget-header { 
+            background: white; padding: 20px; border-radius: 12px; text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
+        .total-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .total-amount-jpy { font-size: 32px; font-weight: bold; color: var(--text-main); }
+        .total-amount-twd { font-size: 16px; color: #888; font-weight: 500; background: #f0f0f0; padding: 4px 12px; border-radius: 15px;}
+        .rate-hint { font-size: 11px; color: #ccc; margin-top: 5px; }
+        
+        .expense-list { list-style: none; padding: 0; margin: 0; }
+        .expense-item { 
+            background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .exp-info h4 { margin: 0 0 4px; font-size: 15px; }
+        .exp-info span { font-size: 12px; color: #999; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; }
+        .exp-price-block { text-align: right; }
+        .exp-price-jpy { font-weight: bold; color: var(--text-main); display: block;}
+        .exp-price-twd { font-size: 11px; color: #aaa; display: block;}
+        .delete-exp { color: #ffcccc; margin-left: 15px; cursor: pointer; padding: 5px;}
 
+        /* --- Settings Modal --- */
+        .color-options { display: flex; gap: 10px; margin-top: 10px; justify-content: center;}
+        .color-circle { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
         /* Nav & FAB */
         .nav-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; background: white;
             display: flex; justify-content: space-around; padding: 12px 0 25px 0;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200;
         }
-        .nav-item { text-align: center; color: #BBBBBB; background: none; border: none; font-size: 10px; }
+        .nav-item { text-align: center; color: #BBBBBB; background: none; border: none; font-size: 10px; cursor: pointer;}
         .nav-item i { display: block; font-size: 20px; margin-bottom: 4px; }
         .nav-item.active { color: var(--primary); }
 
@@ -122,12 +142,12 @@
             position: fixed; bottom: 100px; right: 20px;
             width: 50px; height: 50px; background: var(--primary);
             color: white; border-radius: 50%; border: none;
-            box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             font-size: 24px; display: flex; align-items: center; justify-content: center;
-            z-index: 150; cursor: pointer;
+            z-index: 150; cursor: pointer; transition: background 0.3s;
         }
 
-        /* Modal */
+        /* Modal Global */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 300; display: none;
@@ -136,6 +156,7 @@
         .modal {
             background: white; width: 85%; max-width: 400px; padding: 25px;
             border-radius: 16px; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 85vh; overflow-y: auto;
         }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
@@ -143,9 +164,8 @@
         .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
         .btn-cancel { background: #f0f0f0; color: #333; }
-        .btn-save { background: var(--primary); color: white; }
+        .btn-save { background: var(--primary); color: white; transition: background 0.3s;}
 
-        /* Toast */
         #toast {
             visibility: hidden; min-width: 200px; background-color: #333; color: #fff;
             text-align: center; border-radius: 25px; padding: 12px; position: fixed;
@@ -163,22 +183,22 @@
 
     <header>
         <div class="header-top">
+            <button class="header-btn" onclick="openSettings()">
+                <i class="fas fa-cog"></i> 設定
+            </button>
             <h1 id="header-title" onclick="editDayLabel()" style="cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.5);">Day 1</h1>
-            <div style="display: flex; gap: 8px;">
-                <button class="share-btn" onclick="shareItinerary()">
-                    <i class="fas fa-share-alt"></i> 分享
-                </button>
-            </div>
+            <button class="header-btn" onclick="shareItinerary()">
+                <i class="fas fa-share-alt"></i> 分享
+            </button>
         </div>
         
-        <div style="margin-bottom: 15px;">
+        <div style="margin-bottom: 15px; text-align:center;">
             <div class="editable-date" onclick="editDate()">
                 <i class="far fa-calendar-alt"></i>
                 <span id="current-date-display">2026-04-01</span>
                 <i class="fas fa-pen" style="font-size: 10px; margin-left: 5px;"></i>
             </div>
         </div>
-        
         <div class="date-scroll" id="date-list"></div>
     </header>
 
@@ -187,126 +207,245 @@
         <div style="text-align:center; color:#ccc; margin-top:50px; display:none;" id="empty-state">
             點擊右下角 + 新增行程
         </div>
-        
-        <div style="text-align:center; margin-top: 50px; margin-bottom: 20px;">
-            <button onclick="resetAllData()" style="background:none; border:none; color:#ddd; font-size:12px;">重置資料</button>
+    </div>
+
+    <div id="page-budget" class="page-section container">
+        <div class="budget-header">
+            <span style="font-size:12px; color:#888;">總支出 (日幣 JPY)</span>
+            <div class="total-wrapper">
+                <div class="total-amount-jpy" id="total-jpy">¥ 0</div>
+                <div class="total-amount-twd" id="total-twd">約 NT$ 0</div>
+            </div>
+            <div class="rate-hint">目前匯率: 1 JPY = <span id="rate-display">0.21</span> TWD</div>
+        </div>
+
+        <h4 style="margin-bottom:10px; color:#666;">支出明細</h4>
+        <ul class="expense-list" id="expense-list"></ul>
+        <div style="text-align:center; color:#ccc; margin-top:30px;" id="expense-empty">
+            還沒有記帳資料
         </div>
     </div>
 
-    <div id="page-map" class="page-section container">
-        <h3><i class="fas fa-map-marked-alt"></i> 當日地圖</h3>
-        <p style="font-size:12px; color:#888;">預覽顯示行程名稱，點擊下方按鈕可開啟精準連結</p>
-        <div class="map-container">
-            <iframe id="google-map-frame" src="" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-        </div>
-        <p style="text-align:center; margin-top:10px;">
-            <a href="#" id="open-google-map-app" style="color:#007AFF; text-decoration:none;">
-                <i class="fas fa-external-link-alt"></i> 在 Google Maps App 中開啟導航
-            </a>
-        </p>
-    </div>
-
-    <button class="fab" onclick="openModal('add')">+</button>
+    <button class="fab" onclick="handleFabClick()">+</button>
     <div id="toast">訊息</div>
 
     <nav class="nav-bar">
         <button class="nav-item active" onclick="switchPage('timeline', this)">
             <i class="fas fa-list-ul"></i> 行程
         </button>
-        <button class="nav-item" onclick="switchPage('map', this)">
-            <i class="fas fa-map"></i> 地圖
+        <button class="nav-item" onclick="switchPage('budget', this)">
+            <i class="fas fa-wallet"></i> 記帳
         </button>
     </nav>
 
     <div class="modal-overlay" id="add-modal">
         <div class="modal">
             <h3 id="modal-title" style="margin-top:0;">新增行程</h3>
-            
             <div class="form-group"><label>時間</label><input type="time" id="input-time" class="form-control" value="10:00"></div>
             <div class="form-group"><label>標題</label><input type="text" id="input-title" class="form-control" placeholder="例如：吃拉麵"></div>
-            
-            <div class="form-group">
-                <label>地點名稱 (用於顯示)</label>
-                <input type="text" id="input-loc" class="form-control" placeholder="例如：一蘭拉麵 本店">
-            </div>
-            
-            <div class="form-group">
-                <label>Google Maps 連結 (選填)</label>
-                <input type="text" id="input-link" class="form-control" placeholder="貼上 goo.gl 或 maps.app.goo.gl 連結">
-                <small style="color:#999; font-size:10px;">貼上連結可讓地圖按鈕更精準定位</small>
-            </div>
-
-            <div class="form-group"><label>備註</label><input type="text" id="input-desc" class="form-control" placeholder="備註..."></div>
-            
+            <div class="form-group"><label>地點名稱</label><input type="text" id="input-loc" class="form-control" placeholder="例如：一蘭拉麵 本店"></div>
+            <div class="form-group"><label>地圖連結 (選填)</label><input type="text" id="input-link" class="form-control" placeholder="Google Maps 連結"></div>
+            <div class="form-group"><label>詳細備註</label><textarea id="input-desc" class="form-control" rows="3" placeholder="備註..."></textarea></div>
+            <div class="form-group"><label>圖片連結 (選填)</label><input type="text" id="input-img" class="form-control" placeholder="貼上圖片網址"></div>
             <div class="modal-btns">
-                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-cancel" onclick="closeModal('add-modal')">取消</button>
                 <button class="btn btn-save" onclick="saveItem()">儲存</button>
             </div>
         </div>
     </div>
 
+    <div class="modal-overlay" id="expense-modal">
+        <div class="modal">
+            <h3 style="margin-top:0;">新增支出 (日幣)</h3>
+            <div class="form-group"><label>項目名稱</label><input type="text" id="exp-name" class="form-control" placeholder="例如：午餐"></div>
+            <div class="form-group"><label>金額 (JPY)</label><input type="number" id="exp-amount" class="form-control" placeholder="例如：1000"></div>
+            <div class="form-group">
+                <label>類別</label>
+                <select id="exp-cat" class="form-control">
+                    <option value="食">🍔 餐飲</option>
+                    <option value="行">🚆 交通</option>
+                    <option value="住">🏨 住宿</option>
+                    <option value="購">🛍️ 購物</option>
+                    <option value="樂">🎟️ 娛樂</option>
+                    <option value="其">📄 其他</option>
+                </select>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-cancel" onclick="closeModal('expense-modal')">取消</button>
+                <button class="btn btn-save" onclick="saveExpense()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <h3 style="margin-top:0;">設定</h3>
+            
+            <div class="form-group">
+                <label>匯率設定 (1 JPY = ? TWD)</label>
+                <input type="number" id="setting-rate" class="form-control" placeholder="0.21" step="0.001" onchange="saveRate(this.value)">
+                <small style="color:#888;">設定你的平均換匯成本，記帳頁面會自動換算台幣。</small>
+            </div>
+
+            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+
+            <div class="form-group">
+                <label>更換主題色</label>
+                <div class="color-options">
+                    <div class="color-circle" style="background:#FF4D4D;" onclick="setTheme('#FF4D4D')"></div>
+                    <div class="color-circle" style="background:#FF9F43;" onclick="setTheme('#FF9F43')"></div>
+                    <div class="color-circle" style="background:#00D2D3;" onclick="setTheme('#00D2D3')"></div>
+                    <div class="color-circle" style="background:#54a0ff;" onclick="setTheme('#54a0ff')"></div>
+                    <div class="color-circle" style="background:#5f27cd;" onclick="setTheme('#5f27cd')"></div>
+                    <div class="color-circle" style="background:#222f3e;" onclick="setTheme('#222f3e')"></div>
+                </div>
+                <div style="margin-top:10px; text-align:center;">
+                    <label style="display:inline;">自訂：</label>
+                    <input type="color" onchange="setTheme(this.value)">
+                </div>
+            </div>
+
+            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+            
+            <button onclick="resetAllData()" style="width:100%; padding:12px; color:#ff4d4d; background:#fff0f0; border:none; border-radius:8px;">
+                <i class="fas fa-trash"></i> 清除所有資料 (重置)
+            </button>
+            
+            <div style="text-align:center; margin-top:15px;">
+                <button class="btn btn-cancel" onclick="closeModal('settings-modal')">關閉</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const STORAGE_KEY = 'myTripData_v2'; 
+        const STORAGE_KEY = 'myTripData_v5'; 
+        const EXPENSE_KEY = 'myExpenseData_v5';
+        const THEME_KEY = 'myTheme_v5';
+        const RATE_KEY = 'myRate_v5';
+        
         const defaultData = [{ date: "2026-04-01", label: "Day 1", items: [] }];
         let tripData = [];
+        let expenseData = [];
         let currentDayIndex = 0;
-        let editingItemIndex = -1; // 用來追蹤現在是在編輯哪一筆，-1 代表新增模式
+        let editingItemIndex = -1;
+        let currentPage = 'timeline';
+        let exchangeRate = 0.21; // 預設匯率
 
+        // Init
         function init() {
-            // Import Share Logic
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if(savedTheme) setTheme(savedTheme);
+
+            const savedRate = localStorage.getItem(RATE_KEY);
+            if(savedRate) exchangeRate = parseFloat(savedRate);
+            document.getElementById('setting-rate').value = exchangeRate;
+
+            // Import logic
             const hash = window.location.hash;
             if (hash && hash.startsWith('#import=')) {
                 try {
                     const compressed = hash.substring(8);
                     const decompressed = LZString.decompressFromEncodedURIComponent(compressed);
                     if (decompressed) {
-                        const sharedData = JSON.parse(decompressed);
-                        if (confirm('偵測到分享行程！是否覆蓋現有資料？')) {
-                            tripData = sharedData;
-                            saveToLocal();
+                        const payload = JSON.parse(decompressed);
+                        if (confirm('偵測到分享資料！是否覆蓋現有行程？')) {
+                            if(Array.isArray(payload)) {
+                                tripData = payload; 
+                            } else {
+                                tripData = payload.trip || defaultData;
+                                expenseData = payload.expense || [];
+                            }
+                            saveAll();
                             history.replaceState(null, null, ' ');
-                            showToast("行程匯入成功！");
-                        } else { loadFromLocal(); }
+                            showToast("資料匯入成功！");
+                        } else { loadLocal(); }
                     }
-                } catch (e) { alert("連結無效"); loadFromLocal(); }
-            } else { loadFromLocal(); }
+                } catch (e) { alert("連結無效"); loadLocal(); }
+            } else { loadLocal(); }
 
             renderDateSelector();
             renderTimeline();
+            renderExpenses();
         }
 
-        function loadFromLocal() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            tripData = saved ? JSON.parse(saved) : defaultData;
+        function loadLocal() {
+            const t = localStorage.getItem(STORAGE_KEY);
+            tripData = t ? JSON.parse(t) : defaultData;
+            
+            const e = localStorage.getItem(EXPENSE_KEY);
+            expenseData = e ? JSON.parse(e) : [];
         }
-        function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tripData)); }
-
-        // --- Core Render Logic ---
-        function renderDateSelector() {
-            const container = document.getElementById('date-list');
-            container.innerHTML = '';
-            tripData.forEach((day, index) => {
-                const chip = document.createElement('div');
-                chip.className = `date-chip ${index === currentDayIndex ? 'active' : ''}`;
-                chip.innerText = day.label;
-                chip.onclick = () => { currentDayIndex = index; renderDateSelector(); renderTimeline(); updateMapSource(); };
-                container.appendChild(chip);
-            });
-            const addBtn = document.createElement('div');
-            addBtn.className = 'date-chip add-day-btn';
-            addBtn.innerHTML = '+';
-            addBtn.onclick = addNewDay;
-            container.appendChild(addBtn);
-            updateHeaderInfo();
+        function saveAll() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tripData));
+            localStorage.setItem(EXPENSE_KEY, JSON.stringify(expenseData));
         }
 
+        // --- Settings & Rate Logic ---
+        function setTheme(color) {
+            document.documentElement.style.setProperty('--primary', color);
+            localStorage.setItem(THEME_KEY, color);
+        }
+        function saveRate(val) {
+            if(val) {
+                exchangeRate = parseFloat(val);
+                localStorage.setItem(RATE_KEY, exchangeRate);
+                renderExpenses(); // Update UI
+                showToast("匯率已更新");
+            }
+        }
+        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+
+        // --- Budget Render (Auto Convert) ---
+        function renderExpenses() {
+            const list = document.getElementById('expense-list');
+            const empty = document.getElementById('expense-empty');
+            const totalJpyEl = document.getElementById('total-jpy');
+            const totalTwdEl = document.getElementById('total-twd');
+            const rateDisplay = document.getElementById('rate-display');
+            
+            list.innerHTML = '';
+            rateDisplay.innerText = exchangeRate;
+            
+            let total = 0;
+            if(expenseData.length === 0) {
+                empty.style.display = 'block';
+            } else {
+                empty.style.display = 'none';
+                expenseData.forEach((exp, idx) => {
+                    total += parseFloat(exp.amount);
+                    // 計算單項台幣
+                    const twdVal = Math.round(exp.amount * exchangeRate);
+                    
+                    const html = `
+                        <li class="expense-item">
+                            <div class="exp-info">
+                                <h4>${exp.name}</h4>
+                                <span>${exp.cat}</span>
+                            </div>
+                            <div style="display:flex; align-items:center;">
+                                <div class="exp-price-block">
+                                    <span class="exp-price-jpy">¥ ${exp.amount}</span>
+                                    <span class="exp-price-twd">≈ $${twdVal}</span>
+                                </div>
+                                <i class="fas fa-times delete-exp" onclick="deleteExpense(${idx})"></i>
+                            </div>
+                        </li>
+                    `;
+                    list.innerHTML += html;
+                });
+            }
+            totalJpyEl.innerText = `¥ ${total.toLocaleString()}`;
+            // 總額換算
+            const totalTwd = Math.round(total * exchangeRate);
+            totalTwdEl.innerText = `約 NT$ ${totalTwd.toLocaleString()}`;
+        }
+
+        // --- Timeline Logic (Same as v5) ---
         function renderTimeline() {
             const container = document.getElementById('timeline-container');
             const emptyState = document.getElementById('empty-state');
             container.innerHTML = '';
             const dayItems = tripData[currentDayIndex].items || [];
-            
-            // 排序
             dayItems.sort((a, b) => a.time.localeCompare(b.time));
 
             if (dayItems.length === 0) {
@@ -314,32 +453,29 @@
             } else {
                 emptyState.style.display = 'none';
                 dayItems.forEach((item, idx) => {
-                    // 判斷連結：如果有專屬連結就用專屬連結，否則用名稱搜尋
                     let mapUrl = '#';
                     let hasLink = false;
-                    
-                    if (item.link && item.link.trim() !== "") {
-                        mapUrl = item.link;
-                        hasLink = true;
-                    } else if (item.location) {
-                        mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`;
-                        hasLink = true;
-                    }
+                    if (item.link) { mapUrl = item.link; hasLink = true; }
+                    else if (item.location) { mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`; hasLink = true; }
+                    let imgHtml = item.img ? `<div class="timeline-images"><img src="${item.img}" class="timeline-img" onclick="window.open('${item.img}')"></div>` : '';
 
                     const html = `
-                        <div class="timeline-item">
+                        <div class="timeline-item" id="item-${idx}">
                             <div class="timeline-dot"></div>
-                            
-                            <div class="item-actions">
-                                <div class="action-btn edit" onclick="openModal('edit', ${idx})"><i class="fas fa-pencil-alt"></i></div>
-                                <div class="action-btn delete" onclick="deleteItem(${idx})"><i class="fas fa-trash"></i></div>
-                            </div>
-
-                            <span class="timeline-time">${item.time}</span>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">${item.title}</h4>
-                                <p class="timeline-desc">${item.desc}</p>
-                                ${hasLink ? `<a href="${mapUrl}" target="_blank" class="location-link"><i class="fas fa-map-marker-alt"></i> ${item.location || '查看地圖'}</a>` : ''}
+                            <div class="timeline-content" onclick="toggleExpand(${idx})">
+                                <div class="timeline-header">
+                                    <div><span class="timeline-time">${item.time}</span><h4 class="timeline-title">${item.title}</h4></div>
+                                    <i class="fas fa-chevron-down expand-icon" id="icon-${idx}"></i>
+                                </div>
+                                <div class="timeline-details" onclick="event.stopPropagation()">
+                                    <p class="timeline-desc">${item.desc || '無備註'}</p>
+                                    ${imgHtml}
+                                    ${hasLink ? `<a href="${mapUrl}" target="_blank" class="location-link"><i class="fas fa-map-marker-alt"></i> ${item.location || '開啟地圖'}</a>` : ''}
+                                    <div class="item-actions">
+                                        <div class="action-btn" onclick="openItemModal('edit', ${idx})"><i class="fas fa-pencil-alt"></i> 編輯</div>
+                                        <div class="action-btn" onclick="deleteItem(${idx})" style="color:#ff4d4d;"><i class="fas fa-trash"></i> 刪除</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -347,151 +483,96 @@
                 });
             }
         }
+        function toggleExpand(idx) { document.getElementById(`item-${idx}`).classList.toggle('expanded'); }
 
-        // --- Edit & Modal Logic ---
-        function openModal(mode, idx = -1) {
+        // --- Common Ops ---
+        function openItemModal(mode, idx = -1) {
             const modal = document.getElementById('add-modal');
-            const titleEl = document.getElementById('modal-title');
+            document.getElementById('modal-title').innerText = mode === 'edit' ? "編輯行程" : "新增行程";
             
-            // 清空/重置輸入框
             document.getElementById('input-time').value = "10:00";
             document.getElementById('input-title').value = "";
             document.getElementById('input-loc').value = "";
             document.getElementById('input-link').value = "";
             document.getElementById('input-desc').value = "";
+            document.getElementById('input-img').value = "";
 
             if (mode === 'edit') {
-                titleEl.innerText = "編輯行程";
                 editingItemIndex = idx;
                 const item = tripData[currentDayIndex].items[idx];
-                
-                // 填入舊資料
                 document.getElementById('input-time').value = item.time;
                 document.getElementById('input-title').value = item.title;
                 document.getElementById('input-loc').value = item.location || "";
-                document.getElementById('input-link').value = item.link || ""; // 填入連結
+                document.getElementById('input-link').value = item.link || "";
                 document.getElementById('input-desc').value = item.desc || "";
-            } else {
-                titleEl.innerText = "新增行程";
-                editingItemIndex = -1; // 新增模式
-            }
-
+                document.getElementById('input-img').value = item.img || "";
+            } else { editingItemIndex = -1; }
             modal.style.display = 'flex';
         }
-
-        function closeModal() { document.getElementById('add-modal').style.display = 'none'; }
-
         function saveItem() {
             const time = document.getElementById('input-time').value;
             const title = document.getElementById('input-title').value;
-            const loc = document.getElementById('input-loc').value;
-            const link = document.getElementById('input-link').value;
-            const desc = document.getElementById('input-desc').value;
-
+            const newItem = {
+                time, title,
+                location: document.getElementById('input-loc').value,
+                link: document.getElementById('input-link').value,
+                desc: document.getElementById('input-desc').value,
+                img: document.getElementById('input-img').value
+            };
             if (!title) { alert('請輸入標題'); return; }
-
-            const newItem = { time, title, desc, location: loc, link: link };
-
-            if (editingItemIndex > -1) {
-                // 編輯模式：更新現有資料
-                tripData[currentDayIndex].items[editingItemIndex] = newItem;
-                showToast("行程已更新");
-            } else {
-                // 新增模式：加入新資料
-                tripData[currentDayIndex].items.push(newItem);
-                showToast("行程已新增");
-            }
-
-            saveToLocal();
-            closeModal();
-            renderTimeline();
+            if (editingItemIndex > -1) tripData[currentDayIndex].items[editingItemIndex] = newItem;
+            else tripData[currentDayIndex].items.push(newItem);
+            saveAll(); closeModal('add-modal'); renderTimeline();
         }
-
-        function deleteItem(idx) {
-            if(confirm('確定刪除？')) {
-                tripData[currentDayIndex].items.splice(idx, 1);
-                saveToLocal(); renderTimeline();
-                showToast("已刪除");
-            }
+        function saveExpense() {
+            const name = document.getElementById('exp-name').value;
+            const amount = document.getElementById('exp-amount').value;
+            const cat = document.getElementById('exp-cat').value;
+            if(!name || !amount) { alert('請輸入資料'); return; }
+            expenseData.push({ name, amount, cat });
+            saveAll(); closeModal('expense-modal'); renderExpenses();
+            document.getElementById('exp-name').value = ''; document.getElementById('exp-amount').value = '';
         }
-
-        // --- Shared / Utils ---
-        function editDate() {
-            const current = tripData[currentDayIndex];
-            const newDate = prompt("請輸入新日期", current.date);
-            if (newDate) { current.date = newDate; saveToLocal(); updateHeaderInfo(); }
-        }
-        function editDayLabel() {
-            const current = tripData[currentDayIndex];
-            const newLabel = prompt("為這一天取個名字", current.label);
-            if (newLabel) { current.label = newLabel; saveToLocal(); renderDateSelector(); updateHeaderInfo(); }
-        }
-        function addNewDay() {
-            let nextDateStr = "2026-04-01";
-            try {
-                const d = new Date(tripData[tripData.length-1].date);
-                d.setDate(d.getDate() + 1); nextDateStr = d.toISOString().split('T')[0];
-            } catch(e){}
-            tripData.push({ date: nextDateStr, label: `Day ${tripData.length + 1}`, items: [] });
-            saveToLocal(); currentDayIndex = tripData.length - 1; renderDateSelector(); renderTimeline();
-        }
-        function updateHeaderInfo() {
-            if(tripData[currentDayIndex]) {
-                document.getElementById('current-date-display').innerText = tripData[currentDayIndex].date;
-                document.getElementById('header-title').innerText = tripData[currentDayIndex].label;
-            }
+        function deleteItem(idx) { if(confirm('刪除？')) { tripData[currentDayIndex].items.splice(idx, 1); saveAll(); renderTimeline(); } }
+        function deleteExpense(idx) { if(confirm('刪除？')) { expenseData.splice(idx, 1); saveAll(); renderExpenses(); } }
+        function handleFabClick() { if(currentPage === 'timeline') openItemModal('add'); else document.getElementById('expense-modal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function switchPage(p, btn) {
+            currentPage = p;
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
         }
         function shareItinerary() {
             try {
-                const jsonString = JSON.stringify(tripData);
-                const compressed = LZString.compressToEncodedURIComponent(jsonString);
-                const baseUrl = window.location.href.split('#')[0];
-                const shareUrl = `${baseUrl}#import=${compressed}`;
-                navigator.clipboard.writeText(shareUrl).then(() => showToast("已複製連結！"))
-                .catch(() => prompt("請複製連結：", shareUrl));
-            } catch (e) { alert("分享失敗"); }
+                const payload = { trip: tripData, expense: expenseData };
+                const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
+                const url = `${window.location.href.split('#')[0]}#import=${compressed}`;
+                navigator.clipboard.writeText(url).then(()=>showToast("已複製連結")).catch(()=>prompt("複製:", url));
+            } catch(e) { alert("失敗"); }
         }
-        function showToast(msg) {
-            const x = document.getElementById("toast");
-            x.innerText = msg; x.className = "show";
-            setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000);
+        function renderDateSelector() {
+            const container = document.getElementById('date-list'); container.innerHTML = '';
+            tripData.forEach((day, index) => {
+                const chip = document.createElement('div');
+                chip.className = `date-chip ${index === currentDayIndex ? 'active' : ''}`;
+                chip.innerText = day.label;
+                chip.onclick = () => { currentDayIndex = index; renderDateSelector(); renderTimeline(); };
+                container.appendChild(chip);
+            });
+            const addBtn = document.createElement('div'); addBtn.className = 'date-chip add-day-btn'; addBtn.innerHTML = '+'; addBtn.onclick = addNewDay; container.appendChild(addBtn);
+            updateHeaderInfo();
         }
-        function resetAllData() {
-            if(confirm("確定清除所有資料並重置？")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+        function updateHeaderInfo() { if(tripData[currentDayIndex]) { document.getElementById('current-date-display').innerText = tripData[currentDayIndex].date; document.getElementById('header-title').innerText = tripData[currentDayIndex].label; } }
+        function editDate() { const c = tripData[currentDayIndex]; const n = prompt("日期", c.date); if(n) { c.date = n; saveAll(); updateHeaderInfo(); } }
+        function editDayLabel() { const c = tripData[currentDayIndex]; const n = prompt("名稱", c.label); if(n) { c.label = n; saveAll(); renderDateSelector(); updateHeaderInfo(); } }
+        function addNewDay() { 
+            let next = "2026-04-01"; try{ const d=new Date(tripData[tripData.length-1].date); d.setDate(d.getDate()+1); next=d.toISOString().split('T')[0]; }catch(e){}
+            tripData.push({ date: next, label: `Day ${tripData.length+1}`, items: [] }); saveAll(); currentDayIndex=tripData.length-1; renderDateSelector(); renderTimeline(); 
         }
-
-        // --- Map Logic ---
-        function switchPage(pageId, btn) {
-            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            if (pageId === 'map') updateMapSource();
-        }
-
-        function updateMapSource() {
-            const dayItems = tripData[currentDayIndex].items;
-            let query = "Japan";
-            let directLink = null;
-
-            // 優先找當天第一個有 "地點名稱" 的行程
-            if (dayItems.length > 0) {
-                // 這裡的邏輯：地圖 iframe 需要搜尋關鍵字，所以我們優先使用 location 名稱
-                // 如果該行程只有 link 沒有 location，iframe 可能會搜尋不到，建議還是輸入地點名稱
-                const firstLocItem = dayItems.find(i => i.location && i.location.trim() !== "");
-                if (firstLocItem) {
-                    query = firstLocItem.location;
-                    if (firstLocItem.link) directLink = firstLocItem.link;
-                }
-            }
-            
-            // Iframe 只能用名稱搜尋
-            document.getElementById('google-map-frame').src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
-            
-            // 下方按鈕：如果有設定連結，就用連結；否則用搜尋
-            const btnLink = directLink ? directLink : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-            document.getElementById('open-google-map-app').href = btnLink;
-        }
+        function resetAllData() { if(confirm("確定重置？")) { localStorage.clear(); location.reload(); } }
+        function showToast(msg) { const x = document.getElementById("toast"); x.innerText = msg; x.className = "show"; setTimeout(()=>{ x.className = x.className.replace("show", ""); }, 3000); }
 
         init();
     </script>
